@@ -1,0 +1,3 @@
+rootProject.name='LiveNetwork'
+include ':app'
+include ':livenetwork'
