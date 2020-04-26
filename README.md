@@ -2,7 +2,7 @@
 
 A small network utility library which help you to detect changes in connection using livedata
 
-Just download a code and add livenetwork as glide module in application 
+Just download a code and add livenetwork as dependencies in application 
 
 to use this 
 
