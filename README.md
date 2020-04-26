@@ -4,6 +4,22 @@ A small network utility library which help you to detect changes in connection u
 
 Just download a code and add livenetwork as dependencies in application 
 
+Add it in your root build.gradle at the end of repositories:
+
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+Step 2. Add the dependency
+
+	dependencies {
+	        implementation 'com.github.deepakbk1:LiveNetwork:Tag'
+	}
+
+
+
 to use this 
 
 ```
