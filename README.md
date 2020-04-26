@@ -4,6 +4,7 @@ A small network utility library which help you to detect changes in connection u
 
 Just download a code and add livenetwork as dependencies in application 
 
+Step 1
 Add it in your root build.gradle at the end of repositories:
 
 	allprojects {
