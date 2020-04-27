@@ -36,10 +36,13 @@ NetworkLiveData.observe(this, Observer {
         Toast.makeText(this, "Connection gone", Toast.LENGTH_SHORT).show()
     }
 })
+
 //To get current network status 
 Log.d(“connected”, NetworkLiveData.isNetworkAvaiable().toString())
+
 //To get current network type
 Log.d(“connection type”,NetworkLiveData.getConnectionType().toString)
+
 //To check connected network is reachable or not
 //Add this dependencies
 /*Coroutine dependencies*/
@@ -47,7 +50,10 @@ CoroutineScope(Dispatchers.IO).launch {
  // runs on UI thread
  Log.d(
  “is connection Reachable”,
- NetworkLiveData.isInternetReachable(“https://www.google.com").toString()
+ NetworkLiveData.isInternetReachable(“https://www.google.com").toString(),2000
  )
+
+//To get current network speed 
+ Log.d("connection Speed", NetworkLiveData.getInternetSpeed())
 }
 ```
