@@ -17,6 +17,10 @@ Step 2. Add the dependency
 
 	dependencies {
 	        implementation 'com.github.deepakbk1:LiveNetwork:1.0.1'
+		
+		//To check internet reachability 
+		implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5"
+		implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5"
 	}
 
 
@@ -38,8 +42,7 @@ Log.d(“connected”, NetworkLiveData.isNetworkAvaiable().toString())
 Log.d(“connection type”,NetworkLiveData.getConnectionType().toString)
 //To check connected network is reachable or not
 //Add this dependencies
-/*implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5"
-implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5"*/
+/*Coroutine dependencies*/
 CoroutineScope(Dispatchers.IO).launch {
  // runs on UI thread
  Log.d(
