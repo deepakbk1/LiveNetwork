@@ -8,6 +8,8 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -50,7 +52,7 @@ object NetworkLiveData : LiveData<Boolean>() {
     }
 
     //if you want network status only one time
-    fun isNetworkAvaiable(): Boolean {
+    fun isNetworkAvailable(): Boolean {
         application.getSystemService(
             CONNECTIVITY_SERVICE
         ) as ConnectivityManager
@@ -88,61 +90,49 @@ object NetworkLiveData : LiveData<Boolean>() {
     }
 
     //check if internet is reachable or not
-    suspend fun isInternetReachable(myURL: String?, timeOut: Int): Boolean {
-        return try {
-            val inputStream: InputStream
-            val url: URL = URL(myURL)
-            val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = timeOut
-            conn.readTimeout
-            conn.connect()
+    suspend fun isInternetReachable(myURL: String?, timeOut: Int): Boolean =
+        withContext(Dispatchers.IO) {
+            return@withContext try {
+                val inputStream: InputStream
+                val url: URL = URL(myURL)
+                val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
+                conn.connectTimeout = timeOut
+                conn.readTimeout
+                conn.connect()
+                inputStream = conn.inputStream
+                conn.disconnect()
+                inputStream != null
+            } catch (e: Exception) {
+                false
+            }
 
-            inputStream = conn.inputStream
-            inputStream != null
-        } catch (e: Exception) {
-            false
         }
 
 
-    }
-
     fun getInternetSpeed(): String {
-        var c = ""
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        var downSpeed = -1
+        downSpeed = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val cm =
                 application.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
             val nc = cm.getNetworkCapabilities(cm.activeNetwork)
-            val downSpeed = nc.linkDownstreamBandwidthKbps
-            // val upSpeed = nc.linkUpstreamBandwidthKbps
-
-            c = when (downSpeed) {
-                150 -> "POOR"
-                in 151..550 -> "MODERATE"
-                in 550..2000 -> "GOOD"
-                in 2000..Int.MAX_VALUE -> "EXCELLENT"
-                else -> { // Note the block
-                    "UNKNOWN"
-                }
-            }
+            nc!!.linkDownstreamBandwidthKbps
+            //val upSpeed = nc.linkUpstreamBandwidthKbps
 
         } else {
             val cm =
                 application.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-            val nc = cm.getNetworkCapabilities(cm.allNetworks[getConnectionType() - 1])
-            val downSpeed = nc.linkDownstreamBandwidthKbps
-            //    val upSpeed = nc.linkUpstreamBandwidthKbps
-
-            c = when (downSpeed) {
-                150 -> "POOR"
-                in 151..550 -> "MODERATE"
-                in 550..2000 -> "GOOD"
-                in 2000..Int.MAX_VALUE -> "EXCELLENT"
-                else -> { // Note the block
-                    "UNKNOWN"
-                }
+            val nc = cm.getNetworkCapabilities(cm.allNetworks[cm.activeNetworkInfo?.type!!])
+            nc!!.linkDownstreamBandwidthKbps
+            //val upSpeed = nc.linkUpstreamBandwidthKbps
+        }
+        return when (downSpeed) {
+            150 -> "POOR"
+            in 151..550 -> "MODERATE"
+            in 550..2000 -> "GOOD"
+            in 2000..Int.MAX_VALUE -> "EXCELLENT"
+            else -> { // Note the block
+                "UNKNOWN"
             }
         }
-        return c
-
     }
 }

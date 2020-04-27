@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Connection gone", Toast.LENGTH_SHORT).show()
             }
         })
-        Log.d("connected", NetworkLiveData.isNetworkAvaiable().toString())
+        Log.d("connected", NetworkLiveData.isNetworkAvailable().toString())
         Log.d("connection type", NetworkLiveData.getConnectionType().toString())
         Log.d("connection Speed", NetworkLiveData.getInternetSpeed())
         CoroutineScope(Dispatchers.IO).launch {
