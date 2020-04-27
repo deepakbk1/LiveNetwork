@@ -38,7 +38,7 @@ NetworkLiveData.observe(this, Observer {
 })
 
 //To get current network status 
-Log.d(“connected”, NetworkLiveData.isNetworkAvaiable().toString())
+Log.d(“connected”, NetworkLiveData.isNetworkAvailable().toString())
 
 //To get current network type
 Log.d(“connection type”,NetworkLiveData.getConnectionType().toString)
