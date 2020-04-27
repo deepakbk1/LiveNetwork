@@ -1,7 +1,7 @@
 package com.deepak.livenetwork
 
 import android.app.Application
-import android.content.Context
+import android.content.Context.CONNECTIVITY_SERVICE
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+
 
 object NetworkLiveData : LiveData<Boolean>() {
     private lateinit var application: Application
@@ -29,7 +30,7 @@ object NetworkLiveData : LiveData<Boolean>() {
     }
 
     private fun getDetails() {
-        val cm = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cm = application.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         cm.registerNetworkCallback(networkRequest, object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
@@ -50,8 +51,8 @@ object NetworkLiveData : LiveData<Boolean>() {
 
     //if you want network status only one time
     fun isNetworkAvaiable(): Boolean {
-        val cm = application.getSystemService(
-            Context.CONNECTIVITY_SERVICE
+        application.getSystemService(
+            CONNECTIVITY_SERVICE
         ) as ConnectivityManager
         val activeNetwork = getConnectionType()
         return activeNetwork != 0
@@ -61,7 +62,7 @@ object NetworkLiveData : LiveData<Boolean>() {
     fun getConnectionType(): Int {
         var result = 0 // Returns connection type. 0: none; 1: mobile data; 2: wifi
         val cm =
-            application.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
+            application.applicationContext.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             cm?.run {
                 cm.getNetworkCapabilities(cm.activeNetwork)?.run {
@@ -87,12 +88,61 @@ object NetworkLiveData : LiveData<Boolean>() {
     }
 
     //check if internet is reachable or not
-    suspend fun isInternetReachable(myURL: String?): Boolean {
-        val inputStream: InputStream
-        val url: URL = URL(myURL)
-        val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
-        conn.connect()
-        inputStream = conn.inputStream
-        return inputStream != null
+    suspend fun isInternetReachable(myURL: String?, timeOut: Int): Boolean {
+        return try {
+            val inputStream: InputStream
+            val url: URL = URL(myURL)
+            val conn: HttpURLConnection = url.openConnection() as HttpURLConnection
+            conn.connectTimeout = timeOut
+            conn.readTimeout
+            conn.connect()
+
+            inputStream = conn.inputStream
+            inputStream != null
+        } catch (e: Exception) {
+            false
+        }
+
+
+    }
+
+    fun getInternetSpeed(): String {
+        var c = ""
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val cm =
+                application.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+            val nc = cm.getNetworkCapabilities(cm.activeNetwork)
+            val downSpeed = nc.linkDownstreamBandwidthKbps
+            // val upSpeed = nc.linkUpstreamBandwidthKbps
+
+            c = when (downSpeed) {
+                150 -> "POOR"
+                in 151..550 -> "MODERATE"
+                in 550..2000 -> "GOOD"
+                in 2000..Int.MAX_VALUE -> "EXCELLENT"
+                else -> { // Note the block
+                    "UNKNOWN"
+                }
+            }
+
+        } else {
+            val cm =
+                application.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+            val nc = cm.getNetworkCapabilities(cm.allNetworks[getConnectionType() - 1])
+            val downSpeed = nc.linkDownstreamBandwidthKbps
+            //    val upSpeed = nc.linkUpstreamBandwidthKbps
+
+            c = when (downSpeed) {
+                150 -> "POOR"
+                in 151..550 -> "MODERATE"
+                in 550..2000 -> "GOOD"
+                in 2000..Int.MAX_VALUE -> "EXCELLENT"
+                else -> { // Note the block
+                    "UNKNOWN"
+                }
+            }
+        }
+        return c
+
     }
 }

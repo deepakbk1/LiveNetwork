@@ -22,12 +22,13 @@ class MainActivity : AppCompatActivity() {
             }
         })
         Log.d("connected", NetworkLiveData.isNetworkAvaiable().toString())
-        Log.d("connectiontype", NetworkLiveData.getConnectionType().toString())
+        Log.d("connection type", NetworkLiveData.getConnectionType().toString())
+        Log.d("connection Speed", NetworkLiveData.getInternetSpeed())
         CoroutineScope(Dispatchers.IO).launch {
-            // runs on UI thread
+            // runs on io thread
             Log.d(
-                    "is connection Reachable",
-                    NetworkLiveData.isInternetReachable("https://www.google.com").toString()
+                "is connection Reachable",
+                NetworkLiveData.isInternetReachable("https://www.google.com",2000).toString()
             )
         }
     }
